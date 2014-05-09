@@ -43,6 +43,14 @@ items = output['searchResult']['item']
 for item in output['searchResult']['item']:
 	imageURL = item['galleryURL']['value']
 	bigURL = item['pictureURLSuperSize']['value']
-	filename = str(item['itemId']['value'])+".jpg"
-	urllib.urlretrieve(bigURL, filename)
-	uploadToImgur(filename)
+	#imageName = str(bigURL).split('/')[-1];#not the last image url
+	biggestURL = bigURL.replace("$_3", "$_57")
+	print "Gallery URL:" + imageURL
+	print "Gallery URL:" + bigURL
+	print "Gallery URL:" + biggestURL
+	bigFilename = str(item['itemId']['value'])+".jpg"
+	mediumFilename = str(item['itemId']['value'])+"-med.jpg"
+	urllib.urlretrieve(biggestURL, bigFilename )
+	urllib.urlretrieve(bigURL, mediumFilename )
+	uploadToImgur(bigFilename )
+	uploadToImgur(mediumFilename )
