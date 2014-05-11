@@ -77,38 +77,48 @@ def convertSuperSizeToMax(url):
 		return url
 
 def processLargePicture(item):
-	# try:
-			bigURL = "".join(item['pictureURLSuperSize'])
-			#there is a common pattern of larger images having $_57 as a markup 
+	try:
+		bigURL = "".join(item['pictureURLSuperSize'])
+		#there is a common pattern of larger images having $_57 as a markup 
 
-			baseFileName = getBaseFileName("".join(item['title']), "".join(item['itemId']))
+		baseFileName = getBaseFileName("".join(item['title']), "".join(item['itemId']))
 
-			bigFilename =  baseFileName+"-med.jpg"
-			pprint.pprint("BigURL: " + bigURL)
-			storePicture("".join(item['title']), bigURL, bigFilename)
+		bigFilename =  baseFileName+"-med.jpg"
+		pprint.pprint("BigURL: " + bigURL)
+		storePicture("".join(item['title']), bigURL, bigFilename)
 
-			biggestURL = convertSuperSizeToMax(bigURL)
-			pprint.pprint("BiggestURL: " + biggestURL)
-			biggestFilename =  baseFileName+"-large.jpg"
-			storePicture("".join(item['title']), biggestURL, biggestFilename)
-	# except:
-	# 	logging.warn("Could not process large item")
-	#  	print "Could not process large image"
+		biggestURL = convertSuperSizeToMax(bigURL)
+		pprint.pprint("BiggestURL: " + biggestURL)
+		biggestFilename =  baseFileName+"-large.jpg"
+		storePicture("".join(item['title']), biggestURL, biggestFilename)
+	except KeyError, e:
+			keyError = e
+			print keyError
+	except: #general error
+	 	e = sys.exc_info()[0]
+	 	print e
 
 def processItem(item):
-	pprint.pprint(item)
-	imageURL = "".join(item['galleryURL'])
-	ebayItemId ="".join(item['itemId'])
-	itemName ="".join(item['title'])
+	try:
+		pprint.pprint(item)
+		imageURL = "".join(item['galleryURL'])
+		ebayItemId ="".join(item['itemId'])
+		itemName ="".join(item['title'])
 
-	logging.info(pprint.pformat(item))
-	pprint.pprint("ItemID:" + ebayItemId) 
-	pprint.pprint("Title:" + itemName) 	
-	pprint.pprint("Gallery URL:" + imageURL)
+		logging.info(pprint.pformat(item))
+		pprint.pprint("ItemID:" + ebayItemId) 
+		pprint.pprint("Title:" + itemName) 	
+		pprint.pprint("Gallery URL:" + imageURL)
 
-	storePicture(itemName, imageURL, getBaseFileName(itemName, ebayItemId)+"-gallery.jpg")
-	#processLargePicture(item)
-	downloadItemGallery(ebayItemId)
+		storePicture(itemName, imageURL, getBaseFileName(itemName, ebayItemId)+"-gallery.jpg")
+		#processLargePicture(item)
+		downloadItemGallery(ebayItemId)
+	except KeyError, e:
+			keyError = e
+			print keyError
+	except: #general error
+	 	e = sys.exc_info()[0]
+	 	print e
 
 def processSearchResult(searchResult):
 	count = searchResult['@count']
@@ -134,7 +144,7 @@ def processSearchResult(searchResult):
 set_config_file("ebay.apikey")
 
 outputSelector =["PictureURLSuperSize"]
-result2 = findItemsAdvanced(keywords="sprewell rubies", outputSelector=outputSelector)
+advancedSearchResult = findItemsAdvanced(keywords="sprewell rubies", outputSelector=outputSelector)
 # count = output['searchResult']['count']['value']
 # numberOfItems = int(count)
 # logging.info("Number of items" + count )
@@ -154,20 +164,21 @@ result2 = findItemsAdvanced(keywords="sprewell rubies", outputSelector=outputSel
 # 	print "No items for search " + ebaySearchTerms
 # 	logging.info("No items:" + count )	
 
-findItemsAdvancedResponse = json.loads(result2)['findItemsAdvancedResponse']
+findItemsAdvancedResponse = json.loads(advancedSearchResult)['findItemsAdvancedResponse']
 
 for response in findItemsAdvancedResponse:
 	for searchResult in response['searchResult']:
 		processSearchResult(searchResult)
 
+completedItemsSearchResult = findCompletedItems(keywords="precious metal gems -(retro)", outputSelector=outputSelector)
 
-completedItems = json.loads(findCompletedItems(keywords="star rubies skybox 1997", outputSelector=outputSelector))['findCompletedItemsResponse']
+completedItems = json.loads(completedItemsSearchResult)['findCompletedItemsResponse']
 pprint.pprint(completedItems)
 
 for completeItem in completedItems:
 	for searchResult in completeItem['searchResult']:
 		processSearchResult(searchResult)
 
-# root = objectify.fromstring(result)
-# ack = root.ack.text
 
+#test getting gallery and price for jordan precious metal
+downloadItemGallery("291140900328")
