@@ -17,6 +17,8 @@ from ebay.utils import set_config_file
 
 from ebay.shopping import *
 
+set_config_file("ebay.apikey")
+
 def stripPictureURL(pictureURL):
 	# we normally get a URL from the picture gallery of completed items like: 
 	# http://i.ebayimg.com/00/s/MTQ4OFg5NTQ=/z/DdQAAMXQeW5Tbuyw/$_1.JPG?set_id=880000500F we need to strip off the 
@@ -37,11 +39,18 @@ def downloadItemGallery(itemID):
 	item = result['Item']
 	title = result['Item']['Title']
 	pictures = result['Item']['PictureURL']
+
+	#description = result['Item']['Description']
+
+	#pprint.pprint(description)
+
 	count = 1
 	for picture in pictures:
 		fileName = getBaseFileName(title, itemID) + str(count) + ".jpg"
 		storePicture(title, stripPictureURL(picture), fileName)
 		count += 1
+
+	return result	
 
 def removeDisallowedFilenameChars(filename):
 	cleaned_up_filename = re.sub(r'[/\\:*?"<>|]', '', filename)
@@ -141,44 +150,32 @@ def processSearchResult(searchResult):
 		print "No items for search " + ebaySearchTerms
 		logging.info("No items:" + count )	
 
-set_config_file("ebay.apikey")
+if  __name__ =='__main__':
 
-outputSelector =["PictureURLSuperSize"]
-advancedSearchResult = findItemsAdvanced(keywords="sprewell rubies", outputSelector=outputSelector)
-# count = output['searchResult']['count']['value']
-# numberOfItems = int(count)
-# logging.info("Number of items" + count )
-
-# if(numberOfItems > 0):
-# 	items = output['searchResult']['item']
-# 	logging.info(pprint.pformat(items))
-# 	if(numberOfItems > 1):
-# 		logging.info("Multiple items:" + count )
-# 		for item in items:
-# 			processItem(item)
-# 	else:
-# 		#single item
-# 		logging.info("Single item:" + count )
-# 		processItem(items)	
-# else:
-# 	print "No items for search " + ebaySearchTerms
-# 	logging.info("No items:" + count )	
-
-findItemsAdvancedResponse = json.loads(advancedSearchResult)['findItemsAdvancedResponse']
-
-for response in findItemsAdvancedResponse:
-	for searchResult in response['searchResult']:
-		processSearchResult(searchResult)
-
-completedItemsSearchResult = findCompletedItems(keywords="precious metal gems -(retro)", outputSelector=outputSelector)
-
-completedItems = json.loads(completedItemsSearchResult)['findCompletedItemsResponse']
-pprint.pprint(completedItems)
-
-for completeItem in completedItems:
-	for searchResult in completeItem['searchResult']:
-		processSearchResult(searchResult)
+	outputSelector =["PictureURLSuperSize"]
+	advancedSearchResult = findItemsAdvanced(keywords="dimensions sprewell", outputSelector=outputSelector)
 
 
-#test getting gallery and price for jordan precious metal
-downloadItemGallery("291140900328")
+	# findItemsAdvancedResponse = json.loads(advancedSearchResult)['findItemsAdvancedResponse']
+
+	# for response in findItemsAdvancedResponse:
+	# 	for searchResult in response['searchResult']:
+	# 		processSearchResult(searchResult)
+
+	completedItemsSearchResult = findCompletedItems(keywords="1997 star rubies", outputSelector=outputSelector)
+
+	completedItems = json.loads(completedItemsSearchResult)['findCompletedItemsResponse']
+	pprint.pprint(completedItems)
+
+	for completeItem in completedItems:
+	 	for searchResult in completeItem['searchResult']:
+			processSearchResult(searchResult)
+
+
+	downloadItemGallery("291140900328")#test getting gallery and price for jordan precious metal, best offer from but it now
+	downloadItemGallery("141279661978")# pwcc rodman rubies compete auction
+	downloadItemGallery("131107659173")# nowitski 9.5 buy it now ended
+	downloadItemGallery("141279662913")# pwcc rodman rubies compete auction
+	downloadItemGallery("400566974362")#active listing iversoon hoops
+	downloadItemGallery("131172098101")# completed but ended early malone
+
